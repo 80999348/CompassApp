@@ -10,6 +10,3 @@ captures/
 *.apk
 *.aab
 .kotlin/
-
-# WorkBuddy workspace data
-.workbuddy-ai/

@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,6 +92,27 @@ fun CompassScreen(vm: CompassViewModel) {
                         end = c + dir * outer,
                         strokeWidth = if (isMajor) 3.dp.toPx() else 1.5f
                     )
+                }
+                // 东南西北四方位字样（随表盘旋转）
+                val labels = mapOf(
+                    0f to Triple("北", Color(0xFFE53935), 0.72f),   // 北 = 红色，醒目
+                    90f to Triple("东", Color(0xFFB0BEC5), 0.66f),
+                    180f to Triple("南", Color(0xFFB0BEC5), 0.66f),
+                    270f to Triple("西", Color(0xFFB0BEC5), 0.66f)
+                )
+                val textPx = r * 0.16f
+                val paint = android.graphics.Paint().apply {
+                    isAntiAlias = true
+                    textAlign = android.graphics.Paint.Align.CENTER
+                    textSize = textPx
+                    isFakeBoldText = true
+                }
+                for ((deg, item) in labels) {
+                    val (label, color, radiusFactor) = item
+                    val a = Math.toRadians((deg - 90f).toDouble())  // 0° 在正上方
+                    val pos = c + Offset(cos(a).toFloat(), sin(a).toFloat()) * r * radiusFactor
+                    paint.color = color.toArgb()
+                    drawContext.canvas.nativeCanvas.drawText(label, pos.x, pos.y + textPx / 3f, paint)
                 }
             }
             // 北向红色指针（固定向上）
